@@ -1,0 +1,88 @@
+name: Deploy to Production
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.3'
+          extensions: mbstring, xml, ctype, json, bcmath, pdo, pdo_mysql, gd, zip
+          coverage: none
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Install PHP Dependencies
+        run: composer install --no-dev --optimize-autoloader --no-interaction
+
+      - name: Install NPM Dependencies
+        run: npm ci
+
+      - name: Build Assets
+        run: npm run build
+
+      - name: Prepare Deployment Package
+        run: |
+          tar -czf deployment.tar.gz \
+            --exclude='node_modules' \
+            --exclude='.git' \
+            --exclude='tests' \
+            --exclude='.env' \
+            --exclude='storage/logs/*' \
+            --exclude='storage/framework/cache/*' \
+            --exclude='storage/framework/sessions/*' \
+            .
+
+      - name: Upload Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: deployment-package
+          path: deployment.tar.gz
+          retention-days: 7
+
+      - name: Deploy via SSH
+        uses: appleboy/ssh-action@v1
+        with:
+          host: ${{ secrets.SERVER_HOST }}
+          username: ${{ secrets.SERVER_USER }}
+          key: ${{ secrets.SERVER_SSH_KEY }}
+          script: |
+            cd ${{ secrets.DEPLOY_PATH }}
+            
+            # Backup current
+            cp -r . ../backup_$(date +%Y%m%d_%H%M%S)
+            
+            # Download new build
+            cd /tmp
+            curl -sL "${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}/artifacts/deployment.tar.gz" -o deployment.tar.gz
+            
+            # Extract
+            cd ${{ secrets.DEPLOY_PATH }}
+            tar -xzf /tmp/deployment.tar.gz
+            
+            # Laravel optimize
+            php artisan config:cache
+            php artisan route:cache
+            php artisan view:cache
+            
+            # Run migrations (if needed)
+            php artisan migrate --force
+            
+            # Set permissions
+            chown -R www-data:www-data storage bootstrap/cache
+            
+            echo "✅ Deploy complete: $(date)"
