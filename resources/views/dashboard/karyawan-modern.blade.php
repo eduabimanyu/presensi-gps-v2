@@ -60,9 +60,7 @@
 
         /* Top Navigation */
         .top-nav {
-            background: rgba(255,255,255,0.9);
-            backdrop-filter: blur(12px);
-            -webkit-backdrop-filter: blur(12px);
+            background: var(--surface);
             border-bottom: 1px solid var(--border);
             padding: 16px 24px;
             display: flex;
@@ -82,7 +80,7 @@
         .logo-sm {
             width: 40px;
             height: 40px;
-            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+            background: var(--accent);
             border-radius: 10px;
             display: flex;
             align-items: center;
@@ -90,7 +88,6 @@
             font-size: 18px;
             font-weight: 800;
             color: white;
-            box-shadow: 0 2px 8px rgba(13,148,136,0.25);
         }
 
         .app-name {
@@ -167,14 +164,13 @@
 
         /* Welcome Card */
         .welcome-card {
-            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 50%, #115E59 100%);
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
             border-radius: 16px;
-            padding: 32px;
+            padding: 28px;
             color: white;
             margin-bottom: 24px;
             position: relative;
             overflow: hidden;
-            box-shadow: 0 4px 16px rgba(13,148,136,0.25);
         }
 
         .welcome-card::after {
@@ -193,70 +189,11 @@
             z-index: 1;
         }
 
-        .welcome-content {
-            position: relative;
-            z-index: 1;
-            display: flex;
-            justify-content: space-between;
-            align-items: flex-start;
-        }
-
-        .welcome-text h1 {
+        .welcome-greeting {
             font-size: 24px;
             font-weight: 700;
             margin-bottom: 4px;
-            letter-spacing: -0.3px;
         }
-
-        .welcome-text p {
-            font-size: 14px;
-            opacity: 0.8;
-        }
-
-        .welcome-clock {
-            text-align: right;
-        }
-
-        .welcome-clock .time {
-            font-size: 36px;
-            font-weight: 800;
-            letter-spacing: -1px;
-            font-variant-numeric: tabular-nums;
-        }
-
-        .welcome-clock .label {
-            font-size: 13px;
-            opacity: 0.7;
-        }
-
-        .gps-pills {
-            display: flex;
-            gap: 8px;
-            margin-top: 20px;
-        }
-
-        .gps-pill {
-            display: flex;
-            align-items: center;
-            gap: 6px;
-            background: rgba(255,255,255,0.15);
-            backdrop-filter: blur(10px);
-            border: 1px solid rgba(255,255,255,0.2);
-            border-radius: 20px;
-            padding: 6px 14px;
-            font-size: 12px;
-            font-weight: 500;
-        }
-
-        .gps-dot {
-            width: 6px;
-            height: 6px;
-            border-radius: 50%;
-            background: #10B981;
-            animation: pulse 2s infinite;
-        }
-
-        @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.5} }
 
         .welcome-date {
             font-size: 14px;
@@ -377,18 +314,17 @@
             background: var(--surface);
             border: 1px solid var(--border);
             border-radius: var(--radius);
-            padding: 24px;
+            padding: 20px;
             text-align: center;
             cursor: pointer;
             transition: all 0.2s ease;
             text-decoration: none;
             color: inherit;
-            box-shadow: 0 0 0 1px var(--border), 0 1px 3px rgba(0,0,0,0.06);
         }
 
         .action-card:hover {
             border-color: var(--primary);
-            box-shadow: 0 0 0 1px var(--primary), 0 8px 24px rgba(0,0,0,0.1);
+            box-shadow: var(--shadow-md);
             transform: translateY(-2px);
         }
 
@@ -430,8 +366,8 @@
         .info-card {
             background: var(--surface);
             border: 1px solid var(--border);
-            border-radius: 12px;
-            box-shadow: 0 0 0 1px var(--border), 0 1px 3px rgba(0,0,0,0.04);
+            border-radius: var(--radius);
+            box-shadow: var(--shadow);
         }
 
         .info-card-header {
@@ -748,24 +684,16 @@
         <!-- Welcome Card -->
         <div class="welcome-card fade-in">
             <div class="welcome-content">
-                <div class="welcome-text">
-                    <h1>Selamat {{ $greeting ?? 'Pagi' }}, {{ Auth::user()->name ?? 'Karyawan' }} 👋</h1>
-                    <p>{{ $date ?? now()->locale('id')->isoFormat('dddd, D MMMM YYYY') }}</p>
-                </div>
-                <div class="welcome-clock">
-                    <div class="time" id="clock">{{ $time ?? now()->format('H:i') }}</div>
-                    <div class="label">WIB</div>
-                </div>
-            </div>
-            <div class="gps-pills">
-                <div class="gps-pill">
-                    <span class="gps-dot"></span>
-                    GPS Aktif
-                </div>
-                <div class="gps-pill">
-                    <i class="ti ti-map-pin" style="font-size:14px"></i>
-                    {{ $lokasi ?? 'Kantor Pusat' }}
-                </div>
+                <h1 class="welcome-greeting">Selamat {{ $greeting ?? 'Pagi' }}, {{ Auth::user()->name ?? 'Karyawan' }}! 👋</h1>
+                <p class="welcome-date">
+                    <i class="ti ti-calendar"></i>
+                    {{ $date ?? now()->locale('id')->isoFormat('dddd, D MMMM YYYY') }}
+                </p>
+                <div class="clock-display" id="clock">{{ $time ?? now()->format('H:i:s') }}</div>
+                <p class="clock-label">
+                    <i class="ti ti-clock"></i>
+                    Waktu sekarang (WIB)
+                </p>
             </div>
         </div>
 
@@ -956,7 +884,8 @@
             const options = { 
                 timeZone: 'Asia/Jakarta',
                 hour: '2-digit', 
-                minute: '2-digit',
+                minute: '2-digit', 
+                second: '2-digit', 
                 hour12: false
             };
             const timeString = now.toLocaleTimeString('id-ID', options);

@@ -50,9 +50,9 @@
                 padding: 0;
                 border-radius: 20px;
                 overflow: hidden;
-                background: #000;
+                background: #222;
                 position: relative;
-                box-shadow: 0 0 0 1px rgba(255,255,255,0.1), 0 8px 32px rgba(0,0,0,0.15);
+                box-shadow: 0 4px 24px rgba(44, 62, 80, 0.10);
                 display: flex;
                 align-items: center;
                 justify-content: center;
@@ -368,23 +368,23 @@
         .action-section .scan-button {
             flex: 1;
             font-size: 18px;
-            border-radius: 16px;
-            box-shadow: 0 4px 16px rgba(13,148,136,0.25);
-            transition: transform 0.15s, box-shadow 0.15s;
+            border-radius: 24px;
+            box-shadow: 0 2px 8px rgba(44, 62, 80, 0.10);
+            transition: transform 0.1s, box-shadow 0.1s;
         }
 
         .action-section .scan-button:active {
             transform: scale(0.97);
-            box-shadow: 0 2px 8px rgba(13,148,136,0.3);
+            box-shadow: 0 1px 4px rgba(44, 62, 80, 0.12);
         }
 
         /* Tambahan style jadwal kerja modern */
         .jadwalkerja-row {
-            background: linear-gradient(135deg, var(--color-nav) 0%, var(--color-nav-active) 100%);
+            background: linear-gradient(90deg, var(--color-nav) 0%, var(--color-nav-active) 100%);
             border-radius: 16px;
-            box-shadow: 0 2px 12px rgba(13,148,136,0.15);
-            margin-bottom: 8px;
-            padding: 10px 0 4px 0;
+            box-shadow: 0 4px 18px rgba(44, 62, 80, 0.13);
+            margin-bottom: 6px;
+            padding: 8px 0 4px 0;
             display: flex;
             justify-content: space-between;
             border: none;
